@@ -1,3 +1,4 @@
+const createError = require('http-errors');
 const express = require('express');
 const router = express.Router();
 const Client = require('coinbase').Client;
@@ -12,14 +13,15 @@ module.exports = (app) => {
 
 router.get('/:currencyPair', (req, res, next) => {
   if (req.params.currencyPair){
-    client.getBuyPrice({'currencyPair': req.params.currencyPair}, function(err, price) {
+    let currencyPair = req.params.currencyPair.toUpperCase();
+    client.getBuyPrice({'currencyPair': currencyPair}, function(err, price) {
+      if (err) {next(new Error('404')); return;};
       res.render('index', {
         title: 'Pricing',
         data: price.data
       });
     });
   }
-  res.status(500);
 });
 
 router.get('/', function(req, res, next) {
